@@ -1,91 +1,190 @@
-// snake variables
-int snakesize=1; //size of the snake
-int MAXLENGTH=10;
-int headx[]=new int[MAXLENGTH]; //xlocation
-int heady[]=new int[MAXLENGTH]; //ylocation
-int i;
-
-//FOOD VARIABLES
-int yumx=(round(random(49))+1)*10;
-int yumy=(round(random(49))+1)*10;
-
-  //SPEED
-int speed;         
-int xspeed,yspeed; 
-
-void setup (){
-  
-  size (500,500);
-  
-  headx[0] = 250;
-  heady[0] = 250;
-  // SNAKE HEAD BEGINS UNMOVING.
-  speed=1;           
-  xspeed=0;     
-  yspeed=0;
+snake test;
+food food1;
+int highScore;
+ 
+void setup(){
+  size(1000, 600);
+  frameRate(14);
+  test = new snake();
+  food1 = new food();
+  rectMode(CENTER);
+  textAlign(CENTER, CENTER);
+   
+  highScore = 0;
 }
-
-void draw (){
-  background (0);
-  
-  fill(255,0,0);
-  ellipseMode(CENTER);
-  ellipse(yumx,yumy,15,15);
-  
-   for(int i =0; i < snakesize; i++){
-   //tail
-   fill(200, 20, 200);
-   rectMode(CENTER);
-   rect(headx[i],heady[i],20,20);
-
-   headx[i]=headx[i]+xspeed;
-   heady[i]=heady[i]+yspeed;
-   }
-// FOOD
- if(snakesize<headx.length)
- {
- if (headx[0]>=yumx-20 && headx[0]<=yumx+20 && heady[0]>=yumy-20 && heady[0]<yumy+20)
- {
-    yumx=(round(random(49))+1)*10;
-    yumy=(round(random(49))+1)*10;
-  
-  snakesize++;
-  
-  if (i!=1)
-  {
-  headx[snakesize -1] = headx[snakesize - 2] - 0;
-  heady[snakesize -1] = heady[snakesize - 2] - 20;
+ 
+ 
+ 
+void draw(){
+  background(250, 250, 250);
+  drawScoreboard();
+   
+  test.move();
+  test.display();
+  food1.display();
+   
+   
+  if( dist(food1.xpos, food1.ypos, test.xpos.get(0), test.ypos.get(0)) < test.sidelen ){
+    food1.reset();
+    test.addLink();
   }
-  
- }
- }
+   
+  if(test.len > highScore){
+    highScore= test.len;
+  }
 }
-
-
-void keyPressed()
-{
-   // ARROW KEYS OR LETTER KEYS PRESSED.
-   // RIGHT & LEFT HAND CONTROLS.
+ 
+ 
+void keyPressed(){
+  if(key == CODED){
+    if(keyCode == LEFT){
+      test.dir = "left";
+    }
+    if(keyCode == RIGHT){
+      test.dir = "right";
+    }
+    if(keyCode == UP){
+      test.dir = "up";
+    }
+    if(keyCode == DOWN){
+      test.dir = "down";
+    }
+  }
+}
+ 
+ 
+void drawScoreboard(){
+  // All of the scode for code and title
+   
+  fill(250, 0, 250);
+  textSize(65);
+  text( "Snake Game", width/2, 80);
+  fill(250, 0, 250);
+  textSize(20);
+  text( "By: Katherine<3Quinlivan", width/2, 140);
+   
+   
+  // draw scoreboard
+  stroke(179, 140, 198);
+  fill(255, 0 ,255);
+  rect(90, 70, 160, 80);
+  fill(118, 22, 167);
+  textSize(17);
+  text( "Score: " + test.len, 70, 50);
+   
+  fill(118, 22, 167);
+  textSize(17);
+  text( "High Score: " + highScore, 70, 70);
+}
+ 
+class food{
+   
+  // define varibles
+  float xpos, ypos;
+   
+   
+   
+  //constructor
+  food(){
+    xpos = random(100, width - 100);
+    ypos = random(100, height - 100);
+  }
+   
+   
+  // functions
+ void display(){
+    
+   fill(190,0,100);
+   ellipse(xpos, ypos,17,17);
+ }
   
-  if(keyCode==UP || key == 'w')
-      { 
-        xspeed=0;
-        yspeed=-2;
-      }
-  else if(keyCode==DOWN || key =='s')
-       { 
-         xspeed=0;
-         yspeed=2;
-       }
-
-  else if(keyCode==LEFT || key=='a')
-        { 
-          xspeed=-2;
-          yspeed=0;
-        }
-  else if(keyCode==RIGHT || key =='d')
-        { 
-          xspeed=2;
-          yspeed=0;
-        }    
+  
+ void reset(){
+    xpos = random(100, width - 100);
+    ypos = random(100, height - 100);
+ }  
+}
+ 
+class snake{
+   
+  //define varibles
+  int len;
+  float sidelen;
+  String dir;
+  ArrayList <Float> xpos, ypos;
+   
+  // constructor
+  snake(){
+    len = 1;
+    sidelen = 17;
+    dir = "right";
+    xpos = new ArrayList();
+    ypos = new ArrayList();
+    xpos.add( random(width) );
+    ypos.add( random(height) );
+  }
+   
+  // functions
+   
+   
+  void move(){
+   for(int i = len - 1; i > 0; i = i -1 ){
+    xpos.set(i, xpos.get(i - 1));
+    ypos.set(i, ypos.get(i - 1)); 
+   }
+   if(dir == "left"){
+     xpos.set(0, xpos.get(0) - sidelen);
+   }
+   if(dir == "right"){
+     xpos.set(0, xpos.get(0) + sidelen);
+   }
+    
+   if(dir == "up"){
+     ypos.set(0, ypos.get(0) - sidelen);
+   
+   }
+    
+   if(dir == "down"){
+     ypos.set(0, ypos.get(0) + sidelen);
+   }
+   xpos.set(0, (xpos.get(0) + width) % width);
+   ypos.set(0, (ypos.get(0) + height) % height);
+    
+    // check if hit itself and if so cut off the tail
+    if( checkHit() == true){
+      len = 1;
+      float xtemp = xpos.get(0);
+      float ytemp = ypos.get(0);
+      xpos.clear();
+      ypos.clear();
+      xpos.add(xtemp);
+      ypos.add(ytemp);
+    }
+  }
+   
+   
+   
+  void display(){
+    for(int i = 0; i <len; i++){
+      stroke(179, 140, 198);
+      fill(100, 0, 100, map(i-1, 0, len-1, 250, 50));
+      rect(xpos.get(i), ypos.get(i), sidelen, sidelen);
+    } 
+  }
+   
+   
+  void addLink(){
+    xpos.add( xpos.get(len-1) + sidelen);
+    ypos.add( ypos.get(len-1) + sidelen);
+    len++;
+  }
+   
+   boolean checkHit(){
+    for(int i = 1; i < len; i++){
+     if( dist(xpos.get(0), ypos.get(0), xpos.get(i), ypos.get(i)) < sidelen){
+       return true;
+     }
+    }
+    return false;
+   }
 }
